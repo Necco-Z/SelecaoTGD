@@ -17,6 +17,13 @@ config/icon="res://Assets/Icons/icon.png"
 
 Fader="*res://Utilities/Fader.tscn"
 
+[display]
+
+window/size/width=480
+window/size/height=256
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
+
 [physics]
 
 common/enable_pause_aware_picking=true
@@ -24,3 +31,4 @@ common/enable_pause_aware_picking=true
 [rendering]
 
 environment/default_environment="res://default_env.tres"
+quality/dynamic_fonts/use_oversampling=false
