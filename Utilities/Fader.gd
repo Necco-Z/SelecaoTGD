@@ -1,0 +1,54 @@
+extends CanvasLayer
+
+signal fade_completed
+
+export (float, 0.1, 2.0) var duration = 0.5
+export (int, "Ease in", "Ease out", "Ease in/out", "Ease out/in") var easing = 0
+export (int, "Linear", "Sine", "Quint", "Quart", "Quad", "Expo",
+		"Elastic", "Cubic", "Circle", "Bounce", "Back") var transition = 0
+
+onready var fader := $ScreenFade
+onready var shader := fader.material as ShaderMaterial
+onready var tween := $Tween
+
+
+# default methods
+func _ready():
+	fader.visible = false
+	shader.set_shader_param("value", 0)
+	shader.set_shader_param("fade_in", false)
+
+
+# public methods
+func fade_in():
+	_fade(true)
+
+
+func fade_out():
+	_fade(false)
+
+
+# private methods
+func _fade(fade_in := true):
+	var start := 0.0
+	var end := 1.0
+	shader.set_shader_param("fade_in", false)
+
+	if fade_in:
+		start = 1.0
+		end = 0.0
+		shader.set_shader_param("fade_in", true)
+
+	shader.set_shader_param("value", start)
+	tween.interpolate_property(
+		shader, "shader_param/value",
+		start, end, duration,
+		transition, easing
+	)
+
+	fader.visible = true
+	tween.start()
+	yield(tween, "tween_all_completed")
+	if fade_in:
+		fader.visible = false
+	emit_signal("fade_completed")
