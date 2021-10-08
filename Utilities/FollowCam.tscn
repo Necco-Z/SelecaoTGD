@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Utilities/FollowCam.gd" type="Script" id=1]
+
+[node name="FollowCam" type="Camera2D"]
+current = true
+limit_smoothed = true
+smoothing_enabled = true
+editor_draw_limits = true
+editor_draw_drag_margin = true
+script = ExtResource( 1 )
