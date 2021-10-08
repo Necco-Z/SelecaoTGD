@@ -1,18 +1,198 @@
 extends KinematicBody2D
 
+# signals
+
+
+# enums
+enum Anim {IDLE, RUN, AIR, HIT}
+enum Move {STAND, JUMP, FALL}
+
+
+# constants
+const TILE_SIZE = 16
+const FALL_MODIFIER := 2.5
+const DEFAULT_FRICTION := 6.0
+
+# exports
+export (float, 0.5, 10.0, 0.5) var jump_height = 1
+export(float, 0.5, 20, 0.5) var jump_width = 1
+export(float, 0.5, 20, 0.5) var walk_speed = 1
+export(float, 0.0, 1, 0.1) var coyote_time = 0.2
+export(float, 0.0, 1, 0.1) var buffer_jump_time = 0.2
+
+# variables
+var _state_machine : AnimationNodeStateMachinePlayback
+var can_move := true
+var _velocity := Vector2()
+var _anim_state = Anim.IDLE as int
+var _move_state = Move.STAND as int
+var _jump_velocity: float
+var _gravity: float
+var _current_friction := DEFAULT_FRICTION
+var _facing := Vector2.RIGHT.x
+
+# onready variables
+onready var _coyote_timer := $CoyoteTimer
+onready var _buffer_jump_timer := $BufferJumpTimer
+onready var _sprite := $Sprite
 
 
 # default functions
-func _ready():
+func _ready() -> void:
+	# Inicializar state machine de animação
+	_state_machine = $Animation/Tree.get("parameters/playback")
+	$Animation/Tree.active = true
+
+	# Definição de valores para física do personagem
+	# o quarto a mais garante que o pulo é bem-sucedido
+	jump_height = _unit_to_px(jump_height) + (float(TILE_SIZE) / 4)
+	jump_width = _unit_to_px(jump_width)
+	walk_speed = _unit_to_px(walk_speed)
+	var jump_peak_width = jump_width / 2
+	var jump_peak_time = jump_peak_width / walk_speed
+	_jump_velocity = (2 * jump_height) / jump_peak_time
+	_gravity = (2 * jump_height) / pow(jump_peak_time, 2)
+	_coyote_timer.wait_time = coyote_time
+	_buffer_jump_timer.wait_time = buffer_jump_time
+
+
+func _process(delta) -> void:
 	pass
 
 
-func _process(delta):
-	pass
-
-
-func _physics_process(delta):
-	pass
+func _physics_process(delta) -> void:
+	if can_move:
+		_move_player(delta)
+	_animate_player()
 
 
 # public functions
+func set_friction(value = null) -> void:
+	if typeof(value) == TYPE_INT or typeof(value) == TYPE_REAL:
+		_current_friction = value
+	else:
+		_current_friction = DEFAULT_FRICTION
+
+
+# private functions
+func _move_player(delta) -> void:
+	_velocity.x += _get_x_movement() * walk_speed
+	_velocity.x = _apply_friction(delta)
+	_velocity.y -= int(_get_jump()) * _jump_velocity
+	_velocity.y += _get_gravity() * delta
+	_velocity = _limit_velocity()
+	_velocity = move_and_slide(_velocity, Vector2.UP)
+	_set_facing()
+	_set_move_state()
+	_set_anim_state()
+	_set_coyote_jump()
+	_set_buffer_jump()
+
+
+func _animate_player() -> void:
+	if _anim_state == Anim.HIT:
+		_state_machine.travel("hit")
+	elif _anim_state == Anim.RUN:
+		_state_machine.travel("run")
+	elif _anim_state == Anim.AIR:
+		if _move_state == Move.JUMP:
+			_state_machine.travel("jump")
+		else:
+			_state_machine.travel("fall")
+	else:
+		_state_machine.travel("idle")
+
+
+func _get_x_movement() -> float:
+	var movement := 0.0
+	if Input.is_action_pressed("move_left"):
+		movement -= 1
+	if Input.is_action_pressed("move_right"):
+		movement += 1
+	return movement
+
+
+func _get_jump() -> float:
+	if is_on_floor():
+		if Input.is_action_just_pressed("jump"):
+			return 1.0
+		elif _buffer_jump_timer.is_stopped() == false:
+			return 1.0
+	elif (_coyote_timer.is_stopped() == false
+			and Input.is_action_just_pressed("jump")):
+		return 1.0
+	return 0.0
+
+
+func _get_gravity() -> float:
+	if _move_state == Move.FALL or not Input.is_action_pressed("jump"):
+		return _gravity * FALL_MODIFIER
+	else:
+		return _gravity
+
+
+func _limit_velocity() -> Vector2:
+	var new_vel = _velocity
+	if abs(new_vel.x) > walk_speed:
+		new_vel.x = sign(new_vel.x) * walk_speed
+	if new_vel.y > _jump_velocity:
+		new_vel.y = _jump_velocity
+	return new_vel
+
+
+func _apply_friction(delta) -> float:
+	var xlen = abs(_velocity.x)
+	var xsign = sign(_velocity.x)
+	var applied_friction: float
+	if is_on_floor():
+		applied_friction = _current_friction
+	else:
+		applied_friction = _current_friction / 2
+	if _get_x_movement() == 0:
+		xlen = max(0, xlen - walk_speed * applied_friction * delta)
+	return xlen * xsign
+
+
+func _set_facing() -> void:
+	if sign(_velocity.x) != 0 and _facing != sign(_velocity.x):
+		_facing = int(sign(_velocity.x))
+	_sprite.flip_h = _facing == -1
+
+
+func _set_coyote_jump() -> void:
+	if not is_on_floor() and _move_state == Move.STAND:
+		_move_state = Move.FALL
+		_coyote_timer.start()
+
+
+func _set_buffer_jump() -> void:
+	if not is_on_floor():
+		if _coyote_timer.is_stopped() and _buffer_jump_timer.is_stopped():
+			if Input.is_action_just_pressed("jump"):
+				_buffer_jump_timer.start()
+
+
+func _set_move_state() -> void:
+	if is_on_floor():
+		_move_state = Move.STAND
+	else:
+		if _velocity.y < 0:
+			_move_state = Move.JUMP
+		else:
+			_move_state = Move.FALL
+
+
+func _set_anim_state() -> void:
+	# OBS: Adicionar estado HURT
+
+	if not is_on_floor():
+		_anim_state = Anim.AIR
+	elif not is_zero_approx(_velocity.x):
+		_anim_state = Anim.RUN
+	else:
+		_anim_state = Anim.IDLE
+
+
+# helper functions
+func _unit_to_px(value) -> float:
+	return value * TILE_SIZE
