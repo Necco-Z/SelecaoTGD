@@ -1,11 +1,14 @@
+# tool, class_name and extends keywords
 extends Node
 
-
+# onready variables
 onready var player = $Player
 onready var test_move = $TestUI/MoveState
 onready var test_anim = $TestUI/AnimState
 onready var test_vel = $TestUI/Velocity
 
+
+# built-in methods (_init, _ready and others)
 func _process(_delta):
 	var _m := ""
 	var _a := ""
@@ -35,3 +38,13 @@ func _process(_delta):
 	var _x = str(stepify(player._velocity.x, 0.1))
 	var _y = str(stepify(player._velocity.y, 0.1))
 	test_vel.text = "Velocity: (" + _x + ", " + _y + ")"
+
+
+
+
+
+
+
+
+
+

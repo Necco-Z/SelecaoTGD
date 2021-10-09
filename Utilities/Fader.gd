@@ -1,18 +1,22 @@
+# tool, class_name and extends keywords
 extends CanvasLayer
 
+# signals
 signal fade_completed
 
+# exported variables
 export (float, 0.1, 2.0) var duration = 0.5
 export (int, "Ease in", "Ease out", "Ease in/out", "Ease out/in") var easing = 0
 export (int, "Linear", "Sine", "Quint", "Quart", "Quad", "Expo",
 		"Elastic", "Cubic", "Circle", "Bounce", "Back") var transition = 0
 
+# onready variables
 onready var fader := $ScreenFade
 onready var shader := fader.material as ShaderMaterial
 onready var tween := $Tween
 
 
-# default methods
+# built-in methods (_init, _ready and others)
 func _ready():
 	fader.visible = false
 	shader.set_shader_param("value", 0)

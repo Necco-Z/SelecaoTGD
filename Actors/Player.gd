@@ -1,28 +1,30 @@
+# tool, class_name and extends keywords
 extends KinematicBody2D
+# description (docstring)
 
 # signals
-
 
 # enums
 enum Anim {IDLE, RUN, AIR, HIT}
 enum Move {STAND, JUMP, FALL}
-
 
 # constants
 const TILE_SIZE = 16
 const FALL_MODIFIER := 2.5
 const DEFAULT_FRICTION := 6.0
 
-# exports
+# exported variables
 export (float, 0.5, 10.0, 0.5) var jump_height = 1
 export(float, 0.5, 20, 0.5) var jump_width = 1
 export(float, 0.5, 20, 0.5) var walk_speed = 1
 export(float, 0.0, 1, 0.1) var coyote_time = 0.2
 export(float, 0.0, 1, 0.1) var buffer_jump_time = 0.2
 
-# variables
-var _state_machine : AnimationNodeStateMachinePlayback
+# public variables
 var can_move := true
+
+# private variables
+var _state_machine : AnimationNodeStateMachinePlayback
 var _velocity := Vector2()
 var _anim_state = Anim.IDLE as int
 var _move_state = Move.STAND as int
@@ -37,7 +39,7 @@ onready var _buffer_jump_timer := $BufferJumpTimer
 onready var _sprite := $Sprite
 
 
-# default functions
+# built-in methods (_init, _ready and others)
 func _ready() -> void:
 	# Inicializar state machine de animação
 	_state_machine = $Animation/Tree.get("parameters/playback")
@@ -66,7 +68,7 @@ func _physics_process(delta) -> void:
 	_animate_player()
 
 
-# public functions
+# public methods
 func set_friction(value = null) -> void:
 	if typeof(value) == TYPE_INT or typeof(value) == TYPE_REAL:
 		_current_friction = value
@@ -74,7 +76,7 @@ func set_friction(value = null) -> void:
 		_current_friction = DEFAULT_FRICTION
 
 
-# private functions
+# private methods
 func _move_player(delta) -> void:
 	_velocity.x += _get_x_movement() * walk_speed
 	_velocity.x = _apply_friction(delta)
@@ -193,6 +195,6 @@ func _set_anim_state() -> void:
 		_anim_state = Anim.IDLE
 
 
-# helper functions
+# helper methods
 func _unit_to_px(value) -> float:
 	return value * TILE_SIZE

@@ -284,6 +284,7 @@ animation = "run"
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=18]
 switch_mode = 2
+auto_advance = true
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=19]
 
@@ -295,6 +296,7 @@ switch_mode = 2
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=23]
 switch_mode = 2
+auto_advance = true
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=24]
 
@@ -313,7 +315,7 @@ states/run/node = SubResource( 15 )
 states/run/position = Vector2( 629, 270 )
 transitions = [ "idle", "jump", SubResource( 16 ), "jump", "double_jump", SubResource( 17 ), "double_jump", "fall", SubResource( 18 ), "fall", "idle", SubResource( 19 ), "idle", "run", SubResource( 20 ), "run", "idle", SubResource( 21 ), "idle", "hit", SubResource( 22 ), "hit", "idle", SubResource( 23 ), "jump", "fall", SubResource( 24 ) ]
 start_node = "idle"
-graph_offset = Vector2( -71, 6 )
+graph_offset = Vector2( -72, 2 )
 
 [sub_resource type="AnimationNodeStateMachinePlayback" id=26]
 

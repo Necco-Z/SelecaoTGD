@@ -1,15 +1,18 @@
+# tool, class_name and extends keywords
 extends Camera2D
 
+# exported variables
 export(NodePath) var target_node
 
-var target: Node2D
+# private variables
+var _target: Node2D
 
 
-# default functions
+# built-in methods (_init, _ready and others)
 func _ready():
-	target = get_node_or_null(target_node)
+	_target = get_node_or_null(target_node)
 
 
 func _process(_delta):
-	if target != null:
-		global_position = target.global_position
+	if _target != null:
+		global_position = _target.global_position
