@@ -2,20 +2,25 @@
 extends Area2D
 
 # constants
-const SPEED := 30.0
+const SPEED := 120.0
 
-# private variables
-var _dir := Vector2.RIGHT
+# public variables
+var dir := Vector2.RIGHT
+
+# onready variables
+onready var sprite := $Sprite
 
 
 # built-in methods (_init, _ready and others)
-func _init(dir: Vector2):
-	if dir != Vector2():
-		_dir = dir
+func _ready():
+	if dir == Vector2():
+		print("ERROR: Bullet dir not defined; using right as default")
+	if dir == Vector2.LEFT:
+		scale.x = -1.0
 
 
 func _physics_process(delta):
-	global_position += SPEED * _dir * delta
+	global_position += SPEED * dir * delta
 
 
 # private methods

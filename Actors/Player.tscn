@@ -320,6 +320,7 @@ graph_offset = Vector2( -72, 2 )
 [sub_resource type="AnimationNodeStateMachinePlayback" id=26]
 
 [node name="Player" type="KinematicBody2D"]
+collision_layer = 2
 script = ExtResource( 7 )
 
 [node name="FeetShape" type="CollisionShape2D" parent="."]

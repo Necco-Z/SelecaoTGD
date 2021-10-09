@@ -2,44 +2,30 @@
 extends Node
 
 # onready variables
-onready var player = $Player
-onready var test_move = $TestUI/MoveState
-onready var test_anim = $TestUI/AnimState
-onready var test_vel = $TestUI/Velocity
+onready var enemy = $Enemy
+onready var l_1 = $TestUI/Label1
+onready var l_2 = $TestUI/Label2
+onready var l_3 = $TestUI/Label3
 
 
 # built-in methods (_init, _ready and others)
+func ready():
+	pass
+
+
 func _process(_delta):
-	var _m := ""
-	var _a := ""
-	match player._move_state:
+	var _s = "OTHER"
+	match enemy._state:
 		0:
-			_m = "STAND"
+			_s = "PATROL"
 		1:
-			_m = "JUMP"
+			_s = "ALERT"
 		2:
-			_m = "FALL"
-		_:
-			_m = "OTHER"
-	match player._anim_state:
-		0:
-			_a = "IDLE"
-		1:
-			_a = "RUN"
-		2:
-			_a = "AIR"
-		3:
-			_a = "HIT"
-		_:
-			_a = "OTHER"
-	test_move.text = "Move state: " + _m
-	test_anim.text = "Anim state: " + _a
+			_s = "HIT"
 
-	var _x = str(stepify(player._velocity.x, 0.1))
-	var _y = str(stepify(player._velocity.y, 0.1))
-	test_vel.text = "Velocity: (" + _x + ", " + _y + ")"
+	l_1.text = "Enemy state: " + _s
 
-
+	l_2.text = "Enemy can run? " + str(enemy._can_run)
 
 
 
