@@ -31,7 +31,7 @@ onready var floor_detect := $FloorDetect
 onready var wall_detect := $WallDetect
 onready var run_check_timer := $RunCheckTimer
 onready var alert_timer := $AlertTimer
-onready var shoot_timer := $AlertTimer
+onready var shoot_timer := $ShootTimer
 onready var patrol_timer := $PatrolTimer
 onready var sprite := $Sprite
 onready var player_detect := $PlayerDetect
@@ -48,15 +48,12 @@ func _ready() -> void:
 		_game_space = get_node(game_space_node)
 
 	if start_facing == "Left":
-		_direction = Vector2.LEFT
+		_flip_dir()
 
 
 func _physics_process(_delta: float) -> void:
-	if not is_active:
-		return
 	_execute_state()
 	_animate()
-
 
 # public methods
 func hurt() -> void:
@@ -82,8 +79,7 @@ func _execute_state() -> void:
 			else:
 				alert_timer.stop()
 		States.HIT:
-			#TODO: Animação
-			queue_free()
+			pass
 
 
 func _animate() -> void:
@@ -96,6 +92,8 @@ func _animate() -> void:
 		States.ALERT:
 			if shoot_timer.is_stopped():
 				_state_machine.travel("attack")
+			else:
+				_state_machine.travel("idle")
 		States.HIT:
 			_state_machine.travel("hit")
 
@@ -107,7 +105,7 @@ func _shoot() -> void:
 	_b.dir = _direction
 	_game_space.add_child(_b)
 	_b.global_position = pos
-	alert_timer.start()
+	shoot_timer.start()
 
 
 func _run() -> void:

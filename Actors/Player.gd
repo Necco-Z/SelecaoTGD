@@ -10,8 +10,9 @@ enum Move {STAND, JUMP, FALL}
 
 # constants
 const TILE_SIZE = 16
-const FALL_MODIFIER := 2.5
+const FALL_MODIFIER := 1.5
 const DEFAULT_FRICTION := 6.0
+const ONEWAY_BIT := 6
 
 # exported variables
 export (float, 0.5, 10.0, 0.5) var jump_height = 1
@@ -32,11 +33,13 @@ var _jump_velocity: float
 var _gravity: float
 var _current_friction := DEFAULT_FRICTION
 var _facing := Vector2.RIGHT.x
+var _step_on_enemy := false
 
 # onready variables
 onready var _coyote_timer := $CoyoteTimer
 onready var _buffer_jump_timer := $BufferJumpTimer
 onready var _sprite := $Sprite
+onready var _dropdown_timer := $DropdownTimer
 
 
 # built-in methods (_init, _ready and others)
@@ -58,7 +61,7 @@ func _ready() -> void:
 	_buffer_jump_timer.wait_time = buffer_jump_time
 
 
-func _process(delta) -> void:
+func _process(_delta) -> void:
 	pass
 
 
@@ -78,9 +81,10 @@ func set_friction(value = null) -> void:
 
 # private methods
 func _move_player(delta) -> void:
+	_check_dropdown()
 	_velocity.x += _get_x_movement() * walk_speed
 	_velocity.x = _apply_friction(delta)
-	_velocity.y -= int(_get_jump()) * _jump_velocity
+	_velocity.y -= _get_jump() * _jump_velocity
 	_velocity.y += _get_gravity() * delta
 	_velocity = _limit_velocity()
 	_velocity = move_and_slide(_velocity, Vector2.UP)
@@ -105,6 +109,12 @@ func _animate_player() -> void:
 		_state_machine.travel("idle")
 
 
+func _check_dropdown() -> void:
+	if Input.is_action_pressed("drop"):
+		set_collision_mask_bit(ONEWAY_BIT, false)
+		_dropdown_timer.start()
+
+
 func _get_x_movement() -> float:
 	var movement := 0.0
 	if Input.is_action_pressed("move_left"):
@@ -116,14 +126,28 @@ func _get_x_movement() -> float:
 
 func _get_jump() -> float:
 	if is_on_floor():
-		if Input.is_action_just_pressed("jump"):
-			return 1.0
-		elif _buffer_jump_timer.is_stopped() == false:
+		if _step_on_enemy:
+			if _has_jump_input():
+				return 1.1
+			else:
+				return 1.0
+		elif _has_jump_input():
 			return 1.0
 	elif (_coyote_timer.is_stopped() == false
 			and Input.is_action_just_pressed("jump")):
 		return 1.0
 	return 0.0
+
+
+func _has_jump_input() -> bool:
+	if Input.is_action_just_pressed("jump"):
+		return true
+	elif _buffer_jump_timer.is_stopped() == false:
+		return true
+	elif Input.is_action_pressed("jump") and _step_on_enemy:
+		return true
+	else:
+		return false
 
 
 func _get_gravity() -> float:
@@ -198,3 +222,33 @@ func _set_anim_state() -> void:
 # helper methods
 func _unit_to_px(value) -> float:
 	return value * TILE_SIZE
+
+
+func _on_HitBox_body_entered(body: Node) -> void:
+	return
+	if body.is_in_group("enemy"):
+		_step_on_enemy = true
+		body.hurt()
+	else:
+		print(body.name)
+
+
+func _on_HitBox_body_exited(body: Node) -> void:
+	return
+	if body.is_in_group("enemy"):
+		_step_on_enemy = false
+
+
+func _on_HitBox_body_shape_entered(body_id: int, body: Node, body_shape: int, local_shape: int) -> void:
+	if body.is_in_group("enemy"):
+		_step_on_enemy = true
+		body.hurt()
+
+
+func _on_HitBox_body_shape_exited(body_id: int, body: Node, body_shape: int, local_shape: int) -> void:
+	if body.is_in_group("enemy"):
+		_step_on_enemy = false
+
+
+func _on_DropdownTimer_timeout() -> void:
+	set_collision_mask_bit(ONEWAY_BIT, true)

@@ -8,7 +8,7 @@ const SPEED := 120.0
 var dir := Vector2.RIGHT
 
 # onready variables
-onready var sprite := $Sprite
+onready var anim := $AnimationPlayer
 
 
 # built-in methods (_init, _ready and others)
@@ -25,7 +25,10 @@ func _physics_process(delta):
 
 # private methods
 func _destroy():
-	# TODO: animação
+	set_deferred("monitorable", false)
+	set_deferred("monitoring", false)
+	anim.play("destroy")
+	yield(anim, "animation_finished")
 	queue_free()
 
 

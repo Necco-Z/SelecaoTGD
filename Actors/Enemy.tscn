@@ -9,11 +9,10 @@
 [sub_resource type="CapsuleShape2D" id=1]
 height = 4.0
 
-[sub_resource type="RectangleShape2D" id=18]
+[sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 2, 2 )
 
-[sub_resource type="Animation" id=2]
-resource_name = "attack"
+[sub_resource type="Animation" id=3]
 length = 0.55
 step = 0.05
 tracks/0/type = "value"
@@ -67,8 +66,7 @@ tracks/3/keys = {
 } ]
 }
 
-[sub_resource type="Animation" id=3]
-resource_name = "hit"
+[sub_resource type="Animation" id=4]
 length = 0.25
 step = 0.05
 tracks/0/type = "value"
@@ -102,14 +100,27 @@ tracks/2/loop_wrap = true
 tracks/2/imported = false
 tracks/2/enabled = true
 tracks/2/keys = {
-"times": PoolRealArray( 0, 0.2 ),
+"times": PoolRealArray( 0, 0.15 ),
 "transitions": PoolRealArray( 1, 1 ),
 "update": 0,
-"values": [ 0, 4 ]
+"values": [ 0, 3 ]
+}
+tracks/3/type = "method"
+tracks/3/path = NodePath(".")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0.2 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [  ],
+"method": "queue_free"
+} ]
 }
 
-[sub_resource type="Animation" id=4]
-resource_name = "idle"
+[sub_resource type="Animation" id=5]
 length = 0.95
 loop = true
 step = 0.05
@@ -150,8 +161,7 @@ tracks/2/keys = {
 "values": [ 0, 17 ]
 }
 
-[sub_resource type="Animation" id=5]
-resource_name = "run"
+[sub_resource type="Animation" id=6]
 length = 0.75
 loop = true
 tracks/0/type = "value"
@@ -191,42 +201,43 @@ tracks/2/keys = {
 "values": [ 0, 13 ]
 }
 
-[sub_resource type="AnimationNodeAnimation" id=6]
+[sub_resource type="AnimationNodeAnimation" id=7]
 animation = "attack"
 
-[sub_resource type="AnimationNodeAnimation" id=7]
+[sub_resource type="AnimationNodeAnimation" id=8]
 animation = "hit"
 
-[sub_resource type="AnimationNodeAnimation" id=8]
+[sub_resource type="AnimationNodeAnimation" id=9]
 animation = "idle"
 
-[sub_resource type="AnimationNodeAnimation" id=9]
+[sub_resource type="AnimationNodeAnimation" id=10]
 animation = "run"
-
-[sub_resource type="AnimationNodeStateMachineTransition" id=10]
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=11]
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=12]
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=13]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id=14]
 switch_mode = 2
 auto_advance = true
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=15]
 
 [sub_resource type="AnimationNodeStateMachine" id=16]
-states/attack/node = SubResource( 6 )
+states/attack/node = SubResource( 7 )
 states/attack/position = Vector2( 596, 88 )
-states/hit/node = SubResource( 7 )
+states/hit/node = SubResource( 8 )
 states/hit/position = Vector2( 414, 204 )
-states/idle/node = SubResource( 8 )
+states/idle/node = SubResource( 9 )
 states/idle/position = Vector2( 596, 204 )
-states/run/node = SubResource( 9 )
+states/run/node = SubResource( 10 )
 states/run/position = Vector2( 776, 204 )
-transitions = [ "idle", "attack", SubResource( 10 ), "idle", "run", SubResource( 11 ), "idle", "hit", SubResource( 12 ), "attack", "idle", SubResource( 13 ), "run", "idle", SubResource( 15 ) ]
+transitions = [ "idle", "attack", SubResource( 11 ), "idle", "run", SubResource( 12 ), "idle", "hit", SubResource( 13 ), "attack", "idle", SubResource( 14 ), "run", "idle", SubResource( 15 ) ]
 start_node = "idle"
-graph_offset = Vector2( -27, 70 )
+end_node = "hit"
+graph_offset = Vector2( -27, 49 )
 
 [sub_resource type="AnimationNodeStateMachinePlayback" id=17]
 
@@ -234,7 +245,7 @@ graph_offset = Vector2( -27, 70 )
 "enemy",
 ]]
 collision_layer = 4
-collision_mask = 11
+collision_mask = 75
 script = ExtResource( 5 )
 
 [node name="Body" type="CollisionShape2D" parent="."]
@@ -259,16 +270,17 @@ collision_mask = 2
 [node name="FloorDetect" type="Area2D" parent="."]
 position = Vector2( 16, 2 )
 collision_layer = 4
+collision_mask = 65
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="FloorDetect"]
-shape = SubResource( 18 )
+shape = SubResource( 2 )
 
 [node name="WallDetect" type="Area2D" parent="."]
 position = Vector2( 16, -13 )
 collision_layer = 4
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WallDetect"]
-shape = SubResource( 18 )
+shape = SubResource( 2 )
 
 [node name="AlertTimer" type="Timer" parent="."]
 one_shot = true
@@ -284,10 +296,10 @@ wait_time = 0.1
 autostart = true
 
 [node name="Animation" type="AnimationPlayer" parent="."]
-anims/attack = SubResource( 2 )
-anims/hit = SubResource( 3 )
-anims/idle = SubResource( 4 )
-anims/run = SubResource( 5 )
+anims/attack = SubResource( 3 )
+anims/hit = SubResource( 4 )
+anims/idle = SubResource( 5 )
+anims/run = SubResource( 6 )
 
 [node name="Tree" type="AnimationTree" parent="Animation"]
 tree_root = SubResource( 16 )

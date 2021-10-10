@@ -9,14 +9,14 @@
 [ext_resource path="res://Actors/Player.gd" type="Script" id=7]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 6, 2 )
+extents = Vector2( 7, 2 )
 
 [sub_resource type="CapsuleShape2D" id=2]
 radius = 8.0
 height = 4.0
 
 [sub_resource type="RectangleShape2D" id=3]
-extents = Vector2( 6, 2 )
+extents = Vector2( 7, 2 )
 
 [sub_resource type="Animation" id=4]
 length = 0.3
@@ -321,6 +321,7 @@ graph_offset = Vector2( -72, 2 )
 
 [node name="Player" type="KinematicBody2D"]
 collision_layer = 2
+collision_mask = 117
 script = ExtResource( 7 )
 
 [node name="FeetShape" type="CollisionShape2D" parent="."]
@@ -332,6 +333,8 @@ position = Vector2( 0, -11 )
 shape = SubResource( 2 )
 
 [node name="HitBox" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 4
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
 shape = SubResource( 3 )
@@ -361,3 +364,13 @@ one_shot = true
 [node name="BufferJumpTimer" type="Timer" parent="."]
 wait_time = 0.1
 one_shot = true
+
+[node name="DropdownTimer" type="Timer" parent="."]
+wait_time = 0.1
+one_shot = true
+
+[connection signal="body_entered" from="HitBox" to="." method="_on_HitBox_body_entered"]
+[connection signal="body_exited" from="HitBox" to="." method="_on_HitBox_body_exited"]
+[connection signal="body_shape_entered" from="HitBox" to="." method="_on_HitBox_body_shape_entered"]
+[connection signal="body_shape_exited" from="HitBox" to="." method="_on_HitBox_body_shape_exited"]
+[connection signal="timeout" from="DropdownTimer" to="." method="_on_DropdownTimer_timeout"]
