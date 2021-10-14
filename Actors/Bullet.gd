@@ -36,4 +36,4 @@ func _destroy():
 func _on_Bullet_body_entered(body: Node2D):
 	_destroy()
 	if body.is_in_group("player"):
-		body.hit()
+		body.hurt()

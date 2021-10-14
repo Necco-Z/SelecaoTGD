@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=2]
+[gd_scene load_steps=31 format=2]
 
 [ext_resource path="res://Assets/Main Characters/Ninja Frog/Hit (32x32).png" type="Texture" id=1]
 [ext_resource path="res://Assets/Main Characters/Ninja Frog/Idle (32x32).png" type="Texture" id=2]
@@ -13,9 +13,6 @@ extents = Vector2( 7, 2 )
 [sub_resource type="CapsuleShape2D" id=2]
 radius = 8.0
 height = 4.0
-
-[sub_resource type="RectangleShape2D" id=3]
-extents = Vector2( 7, 2 )
 
 [sub_resource type="Animation" id=5]
 length = 0.05
@@ -275,11 +272,14 @@ states/run/node = SubResource( 15 )
 states/run/position = Vector2( 629, 270 )
 transitions = [ "idle", "jump", SubResource( 16 ), "jump", "double_jump", SubResource( 17 ), "double_jump", "fall", SubResource( 18 ), "fall", "idle", SubResource( 19 ), "idle", "run", SubResource( 20 ), "run", "idle", SubResource( 21 ), "jump", "fall", SubResource( 24 ), "idle", "hurt", SubResource( 28 ), "hurt", "idle", SubResource( 29 ) ]
 start_node = "idle"
-graph_offset = Vector2( -72, 2 )
+end_node = "hurt"
+graph_offset = Vector2( -89, 103.895 )
 
 [sub_resource type="AnimationNodeStateMachinePlayback" id=26]
 
-[node name="Player" type="KinematicBody2D"]
+[node name="Player" type="KinematicBody2D" groups=[
+"player",
+]]
 z_index = 10
 collision_layer = 2
 collision_mask = 117
@@ -293,12 +293,17 @@ shape = SubResource( 1 )
 position = Vector2( 0, -11 )
 shape = SubResource( 2 )
 
-[node name="HitBox" type="Area2D" parent="."]
-collision_layer = 8
+[node name="HitLeft" type="RayCast2D" parent="."]
+position = Vector2( -5, 0 )
+enabled = true
+cast_to = Vector2( 0, 4 )
 collision_mask = 4
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
-shape = SubResource( 3 )
+[node name="HitRight" type="RayCast2D" parent="."]
+position = Vector2( 5, 0 )
+enabled = true
+cast_to = Vector2( 0, 4 )
+collision_mask = 4
 
 [node name="Sprite" type="Sprite" parent="."]
 position = Vector2( 0, -16 )
@@ -329,6 +334,4 @@ one_shot = true
 wait_time = 0.1
 one_shot = true
 
-[connection signal="body_entered" from="HitBox" to="." method="_on_HitBox_body_entered"]
-[connection signal="body_exited" from="HitBox" to="." method="_on_HitBox_body_exited"]
 [connection signal="timeout" from="DropdownTimer" to="." method="_on_DropdownTimer_timeout"]

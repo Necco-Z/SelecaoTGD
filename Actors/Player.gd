@@ -4,6 +4,7 @@ extends KinematicBody2D
 
 # signals
 signal fruit_picked
+signal player_defeated
 
 # enums
 enum Anim {IDLE, RUN, AIR, HURT}
@@ -34,13 +35,14 @@ var _jump_velocity: float
 var _gravity: float
 var _current_friction := DEFAULT_FRICTION
 var _facing := Vector2.RIGHT.x
-var _step_on_enemy := false
 
 # onready variables
 onready var _coyote_timer := $CoyoteTimer
 onready var _buffer_jump_timer := $BufferJumpTimer
 onready var _sprite := $Sprite
 onready var _dropdown_timer := $DropdownTimer
+onready var _hit_left := $HitLeft
+onready var _hit_right := $HitRight
 
 
 # built-in methods (_init, _ready and others)
@@ -78,7 +80,7 @@ func get_fruit() -> void:
 
 
 func hurt() -> void:
-	pass
+	_anim_state = Anim.HURT
 
 
 # private methods
@@ -90,6 +92,7 @@ func _move_player(delta) -> void:
 	_velocity.y += _get_gravity() * delta
 	_velocity = _limit_velocity()
 	_velocity = move_and_slide(_velocity, Vector2.UP)
+	_check_collision()
 	_set_facing()
 	_set_move_state()
 	_set_anim_state()
@@ -99,6 +102,7 @@ func _move_player(delta) -> void:
 
 func _animate_player() -> void:
 	if _anim_state == Anim.HURT:
+		print("woo!")
 		_state_machine.travel("hurt")
 	elif _anim_state == Anim.RUN:
 		_state_machine.travel("run")
@@ -109,6 +113,26 @@ func _animate_player() -> void:
 			_state_machine.travel("fall")
 	else:
 		_state_machine.travel("idle")
+
+
+func _check_collision() -> void:
+	var c_enemy := _check_enemy_step()
+	for i in get_slide_count():
+		var col = get_slide_collision(i)
+		if col.collider.is_in_group("enemy"):
+			if c_enemy.has(col.collider):
+				col.collider.hurt()
+			else:
+				hurt()
+
+
+func _check_enemy_step() -> Array:
+	var result := []
+	for r in [_hit_left, _hit_right]:
+		r.force_raycast_update()
+		if r.get_collider() != null:
+			result.append(r.get_collider())
+	return result
 
 
 func _check_dropdown() -> void:
@@ -128,7 +152,7 @@ func _get_x_movement() -> float:
 
 func _get_jump() -> float:
 	if is_on_floor():
-		if _step_on_enemy:
+		if _check_enemy_step().size() != 0:
 			if _has_jump_input():
 				return 1.1
 			else:
@@ -146,7 +170,7 @@ func _has_jump_input() -> bool:
 		return true
 	elif _buffer_jump_timer.is_stopped() == false:
 		return true
-	elif Input.is_action_pressed("jump") and _step_on_enemy:
+	elif Input.is_action_pressed("jump") and _check_enemy_step().size() != 0:
 		return true
 	else:
 		return false
@@ -224,19 +248,6 @@ func _set_anim_state() -> void:
 # helper methods
 func _unit_to_px(value) -> float:
 	return value * TILE_SIZE
-
-
-func _on_HitBox_body_entered(body: Node) -> void:
-	if body.is_in_group("enemy"):
-		_step_on_enemy = true
-		body.hurt()
-	else:
-		print(body.name)
-
-
-func _on_HitBox_body_exited(body: Node) -> void:
-	if body.is_in_group("enemy"):
-		_step_on_enemy = false
 
 
 func _on_DropdownTimer_timeout() -> void:

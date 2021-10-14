@@ -42,6 +42,7 @@ shader_param/clockwise = true
 shader_param/angle_offset = 0.25
 
 [node name="Fader" type="CanvasLayer"]
+pause_mode = 2
 layer = 100
 script = ExtResource( 1 )
 

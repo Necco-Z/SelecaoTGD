@@ -18,25 +18,29 @@ onready var l_3 = $TestUI/Label3
 # built-in methods (_init, _ready and others)
 func _ready() -> void:
 	var _c = player.connect("fruit_picked", self, "_on_fruit_picked")
+	_c = player.connect("player_defeated", self, "_on_player_defeated")
 	max_fruits = pickups.get_child_count()
 
 
 func _physics_process(_delta) -> void:
 	# for testing
 	l_1.text = "Fruits collected: " + str(fruits)
+	l_2.text = "Step on enemy: " + str(player._check_enemy_step().size() != 0)
 
 
 # private methods
+func _finished() -> void:
+	#TODO: Add ending
+	print("Congratulations!")
+
+
+# signal methods
 func _on_fruit_picked() -> void:
 	fruits += 1
 	if fruits >= max_fruits:
 		_finished()
 
 
-func _finished() -> void:
-	#TODO: Add ending
-	print("Congratulations!")
-
-
-
+func _on_player_defeated() -> void:
+	print("player defeated")
 
