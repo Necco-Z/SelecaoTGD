@@ -3,6 +3,7 @@ extends KinematicBody2D
 # description (docstring)
 
 # signals
+signal fruit_picked
 
 # enums
 enum Anim {IDLE, RUN, AIR, HIT}
@@ -16,10 +17,10 @@ const ONEWAY_BIT := 6
 
 # exported variables
 export (float, 0.5, 10.0, 0.5) var jump_height = 1
-export(float, 0.5, 20, 0.5) var jump_width = 1
-export(float, 0.5, 20, 0.5) var walk_speed = 1
-export(float, 0.0, 1, 0.1) var coyote_time = 0.2
-export(float, 0.0, 1, 0.1) var buffer_jump_time = 0.2
+export (float, 0.5, 20, 0.5) var jump_width = 1
+export (float, 0.5, 20, 0.5) var walk_speed = 1
+export (float, 0.0, 1, 0.1) var coyote_time = 0.2
+export (float, 0.0, 1, 0.1) var buffer_jump_time = 0.2
 
 # public variables
 var can_move := true
@@ -72,11 +73,8 @@ func _physics_process(delta) -> void:
 
 
 # public methods
-func set_friction(value = null) -> void:
-	if typeof(value) == TYPE_INT or typeof(value) == TYPE_REAL:
-		_current_friction = value
-	else:
-		_current_friction = DEFAULT_FRICTION
+func get_fruit() -> void:
+	emit_signal("fruit_picked")
 
 
 # private methods
@@ -225,7 +223,6 @@ func _unit_to_px(value) -> float:
 
 
 func _on_HitBox_body_entered(body: Node) -> void:
-	return
 	if body.is_in_group("enemy"):
 		_step_on_enemy = true
 		body.hurt()
@@ -234,18 +231,6 @@ func _on_HitBox_body_entered(body: Node) -> void:
 
 
 func _on_HitBox_body_exited(body: Node) -> void:
-	return
-	if body.is_in_group("enemy"):
-		_step_on_enemy = false
-
-
-func _on_HitBox_body_shape_entered(body_id: int, body: Node, body_shape: int, local_shape: int) -> void:
-	if body.is_in_group("enemy"):
-		_step_on_enemy = true
-		body.hurt()
-
-
-func _on_HitBox_body_shape_exited(body_id: int, body: Node, body_shape: int, local_shape: int) -> void:
 	if body.is_in_group("enemy"):
 		_step_on_enemy = false
 
