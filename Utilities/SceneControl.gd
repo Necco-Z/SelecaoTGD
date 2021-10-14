@@ -12,6 +12,7 @@ extends Node
 
 # public variables
 var current_scene : Node
+var is_switching := false
 
 # onready variables
 onready var fader := $Fader
@@ -21,7 +22,11 @@ onready var fader := $Fader
 
 
 # public methods
-func switch_scene(to: PackedScene, instant := false):
+func switch_scene(to: String, instant := false):
+	if is_switching:
+		return
+
+	is_switching = true
 	if not instant and current_scene != null:
 		fader.fade_out()
 		yield(fader, "fade_completed")
@@ -29,7 +34,7 @@ func switch_scene(to: PackedScene, instant := false):
 		fader.instant_fade_out()
 	if current_scene != null:
 		current_scene.queue_free()
-	var _s = to.instance()
+	var _s = load(to).instance()
 	add_child(_s)
 	if not instant:
 		fader.fade_in()
@@ -37,3 +42,4 @@ func switch_scene(to: PackedScene, instant := false):
 	else:
 		fader.instant_fade_in()
 	current_scene = _s
+	is_switching = false

@@ -25,7 +25,6 @@ func _ready() -> void:
 func _physics_process(_delta) -> void:
 	# for testing
 	l_1.text = "Fruits collected: " + str(fruits)
-	l_2.text = "Step on enemy: " + str(player._check_enemy_step().size() != 0)
 
 
 # private methods
@@ -42,5 +41,5 @@ func _on_fruit_picked() -> void:
 
 
 func _on_player_defeated() -> void:
-	print("player defeated")
+	SceneControl.switch_scene("res://Stages/MainStage.tscn")
 

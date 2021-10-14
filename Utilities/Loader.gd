@@ -2,7 +2,7 @@
 extends Node
 
 # exported variables
-export (PackedScene) var starter_scene
+export (String, FILE, "*.tscn") var starter_scene
 
 
 # built-in methods (_init, _ready and others)

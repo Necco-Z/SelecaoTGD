@@ -80,7 +80,7 @@ func get_fruit() -> void:
 
 
 func hurt() -> void:
-	_anim_state = Anim.HURT
+	emit_signal("player_defeated")
 
 
 # private methods
