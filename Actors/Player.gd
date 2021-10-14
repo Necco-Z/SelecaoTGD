@@ -45,6 +45,7 @@ onready var _dropdown_timer := $DropdownTimer
 onready var _hurt_timer := $HurtTimer
 onready var _hit_left := $HitLeft
 onready var _hit_right := $HitRight
+onready var _dust := $Dust
 
 
 # built-in methods (_init, _ready and others)
@@ -106,10 +107,12 @@ func _move_player(delta) -> void:
 
 
 func _animate_player() -> void:
+	_dust.emitting = false
 	if _anim_state == Anim.HURT:
 		_state_machine.travel("hurt")
 	elif _anim_state == Anim.RUN:
 		_state_machine.travel("run")
+		_dust.emitting = true
 	elif _anim_state == Anim.AIR:
 		if _move_state == Move.JUMP:
 			_state_machine.travel("jump")
@@ -216,6 +219,7 @@ func _apply_friction(delta) -> float:
 func _set_facing() -> void:
 	if sign(_velocity.x) != 0 and _facing != sign(_velocity.x):
 		_facing = int(sign(_velocity.x))
+		_dust.position.x = abs(_dust.position.x) * _facing * -1
 	_sprite.flip_h = _facing == -1
 
 

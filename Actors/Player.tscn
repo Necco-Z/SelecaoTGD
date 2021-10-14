@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=2]
+[gd_scene load_steps=30 format=2]
 
 [ext_resource path="res://Assets/Main Characters/Ninja Frog/Hit (32x32).png" type="Texture" id=1]
 [ext_resource path="res://Assets/Main Characters/Ninja Frog/Idle (32x32).png" type="Texture" id=2]
@@ -13,6 +13,25 @@ extents = Vector2( 7, 2 )
 [sub_resource type="CapsuleShape2D" id=2]
 radius = 8.0
 height = 4.0
+
+[sub_resource type="Gradient" id=30]
+colors = PoolColorArray( 0.882353, 0.964706, 0.729412, 1, 0.588235, 0.6, 0.470588, 0.623529 )
+
+[sub_resource type="GradientTexture" id=31]
+gradient = SubResource( 30 )
+width = 32
+
+[sub_resource type="ParticlesMaterial" id=29]
+trail_divisor = 3
+trail_color_modifier = SubResource( 31 )
+emission_shape = 2
+emission_box_extents = Vector3( 2, 1, 1 )
+flag_disable_z = true
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+scale = 2.0
+scale_random = 0.5
+color = Color( 0.898039, 1, 0.819608, 1 )
 
 [sub_resource type="Animation" id=5]
 length = 0.05
@@ -292,8 +311,17 @@ collision_mask = 4
 
 [node name="Sprite" type="Sprite" parent="."]
 position = Vector2( 0, -16 )
-texture = ExtResource( 1 )
-hframes = 7
+texture = ExtResource( 2 )
+hframes = 11
+
+[node name="Dust" type="Particles2D" parent="."]
+position = Vector2( -7, -2 )
+amount = 3
+lifetime = 0.25
+randomness = 0.3
+local_coords = false
+draw_order = 1
+process_material = SubResource( 29 )
 
 [node name="Animation" type="AnimationPlayer" parent="."]
 anims/fall = SubResource( 5 )
