@@ -11,11 +11,12 @@ config_version=4
 [application]
 
 config/name="Seleção TGD"
+run/main_scene="res://Utilities/Loader.tscn"
 config/icon="res://Assets/Icons/icon.png"
 
 [autoload]
 
-Fader="*res://Utilities/Fader.tscn"
+SceneControl="*res://Utilities/SceneControl.tscn"
 
 [display]
 

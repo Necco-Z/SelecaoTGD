@@ -32,16 +32,21 @@ func fade_out():
 	_fade(false)
 
 
+func instant_fade_in():
+	fader.visible = false
+
+
+func instant_fade_out():
+	shader.set_shader_param("value", 1.0)
+	shader.set_shader_param("fade_in", false)
+	fader.visible = true
+
+
 # private methods
 func _fade(fade_in := true):
 	var start := 0.0
 	var end := 1.0
-	shader.set_shader_param("fade_in", false)
-
-	if fade_in:
-		start = 1.0
-		end = 0.0
-		shader.set_shader_param("fade_in", true)
+	shader.set_shader_param("fade_in", fade_in)
 
 	shader.set_shader_param("value", start)
 	tween.interpolate_property(
