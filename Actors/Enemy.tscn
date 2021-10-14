@@ -67,6 +67,7 @@ tracks/3/keys = {
 }
 
 [sub_resource type="Animation" id=4]
+resource_name = "hurt"
 length = 0.25
 step = 0.05
 tracks/0/type = "value"
@@ -205,7 +206,7 @@ tracks/2/keys = {
 animation = "attack"
 
 [sub_resource type="AnimationNodeAnimation" id=8]
-animation = "hit"
+animation = "hurt"
 
 [sub_resource type="AnimationNodeAnimation" id=9]
 animation = "idle"
@@ -218,25 +219,25 @@ animation = "run"
 [sub_resource type="AnimationNodeStateMachineTransition" id=12]
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=13]
-
-[sub_resource type="AnimationNodeStateMachineTransition" id=14]
 switch_mode = 2
 auto_advance = true
+
+[sub_resource type="AnimationNodeStateMachineTransition" id=14]
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=15]
 
 [sub_resource type="AnimationNodeStateMachine" id=16]
 states/attack/node = SubResource( 7 )
 states/attack/position = Vector2( 596, 88 )
-states/hit/node = SubResource( 8 )
-states/hit/position = Vector2( 414, 204 )
+states/hurt/node = SubResource( 8 )
+states/hurt/position = Vector2( 417, 204 )
 states/idle/node = SubResource( 9 )
 states/idle/position = Vector2( 596, 204 )
 states/run/node = SubResource( 10 )
 states/run/position = Vector2( 776, 204 )
-transitions = [ "idle", "attack", SubResource( 11 ), "idle", "run", SubResource( 12 ), "idle", "hit", SubResource( 13 ), "attack", "idle", SubResource( 14 ), "run", "idle", SubResource( 15 ) ]
+transitions = [ "idle", "attack", SubResource( 11 ), "idle", "run", SubResource( 12 ), "attack", "idle", SubResource( 13 ), "run", "idle", SubResource( 14 ), "idle", "hurt", SubResource( 15 ) ]
 start_node = "idle"
-end_node = "hit"
+end_node = "hurt"
 graph_offset = Vector2( -27, 49 )
 
 [sub_resource type="AnimationNodeStateMachinePlayback" id=17]
@@ -298,7 +299,7 @@ autostart = true
 
 [node name="Animation" type="AnimationPlayer" parent="."]
 anims/attack = SubResource( 3 )
-anims/hit = SubResource( 4 )
+anims/hurt = SubResource( 4 )
 anims/idle = SubResource( 5 )
 anims/run = SubResource( 6 )
 

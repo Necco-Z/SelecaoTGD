@@ -6,7 +6,7 @@ extends KinematicBody2D
 signal fruit_picked
 
 # enums
-enum Anim {IDLE, RUN, AIR, HIT}
+enum Anim {IDLE, RUN, AIR, HURT}
 enum Move {STAND, JUMP, FALL}
 
 # constants
@@ -77,6 +77,10 @@ func get_fruit() -> void:
 	emit_signal("fruit_picked")
 
 
+func hurt() -> void:
+	pass
+
+
 # private methods
 func _move_player(delta) -> void:
 	_check_dropdown()
@@ -94,8 +98,8 @@ func _move_player(delta) -> void:
 
 
 func _animate_player() -> void:
-	if _anim_state == Anim.HIT:
-		_state_machine.travel("hit")
+	if _anim_state == Anim.HURT:
+		_state_machine.travel("hurt")
 	elif _anim_state == Anim.RUN:
 		_state_machine.travel("run")
 	elif _anim_state == Anim.AIR:

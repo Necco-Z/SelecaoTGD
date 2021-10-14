@@ -5,7 +5,7 @@ extends KinematicBody2D
 # signals
 
 # enums
-enum States {PATROL, ALERT, HIT}
+enum States {PATROL, ALERT, HURT}
 
 # constants
 const BULLET = preload("res://Actors/Bullet.tscn")
@@ -58,7 +58,7 @@ func _physics_process(_delta: float) -> void:
 # public methods
 func hurt() -> void:
 	is_active = false
-	_state = States.HIT
+	_state = States.HURT
 
 
 # private methods
@@ -78,7 +78,7 @@ func _execute_state() -> void:
 					alert_timer.start()
 			else:
 				alert_timer.stop()
-		States.HIT:
+		States.HURT:
 			pass
 
 
@@ -94,8 +94,8 @@ func _animate() -> void:
 				_state_machine.travel("attack")
 			else:
 				_state_machine.travel("idle")
-		States.HIT:
-			_state_machine.travel("hit")
+		States.HURT:
+			_state_machine.travel("hurt")
 
 
 
