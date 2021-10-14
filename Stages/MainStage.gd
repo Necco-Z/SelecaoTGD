@@ -8,11 +8,7 @@ var max_fruits := 1
 # onready variables
 onready var player := $Player
 onready var pickups := $Pickups
-
-# for testing
-onready var l_1 = $TestUI/Label1
-onready var l_2 = $TestUI/Label2
-onready var l_3 = $TestUI/Label3
+onready var ui := $UI
 
 
 # built-in methods (_init, _ready and others)
@@ -22,15 +18,16 @@ func _ready() -> void:
 	max_fruits = pickups.get_child_count()
 
 
-func _physics_process(_delta) -> void:
-	# for testing
-	l_1.text = "State machine working: " + str(player._state_machine.is_playing())
-
-
 # private methods
 func _finished() -> void:
-	#TODO: Add ending
-	print("Congratulations!")
+	player.is_active = false
+	ui.congratulations()
+	yield(ui, "anim_finished")
+	_reset()
+
+
+func _reset() -> void:
+	SceneControl.switch_scene("res://Stages/MainStage.tscn")
 
 
 # signal methods
@@ -41,5 +38,5 @@ func _on_fruit_picked() -> void:
 
 
 func _on_player_defeated() -> void:
-	SceneControl.switch_scene("res://Stages/MainStage.tscn")
+	_reset()
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Assets/Terrain/Terrains.tres" type="TileSet" id=1]
 [ext_resource path="res://Utilities/BG.tscn" type="PackedScene" id=2]
@@ -8,6 +8,7 @@
 [ext_resource path="res://Actors/Enemy.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Actors/Pickups/Orange.tscn" type="PackedScene" id=7]
 [ext_resource path="res://Actors/Pickups/Kiwi.tscn" type="PackedScene" id=8]
+[ext_resource path="res://Utilities/UI.tscn" type="PackedScene" id=9]
 
 [node name="MainStage" type="Node"]
 script = ExtResource( 4 )
@@ -44,34 +45,7 @@ jump_height = 5.0
 jump_width = 4.5
 walk_speed = 5.0
 
-[node name="TestUI" type="CanvasLayer" parent="."]
-
-[node name="Label1" type="Label" parent="TestUI"]
-margin_left = 8.0
-margin_top = 5.0
-margin_right = 129.0
-margin_bottom = 19.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Label2" type="Label" parent="TestUI"]
-margin_left = 8.0
-margin_top = 23.0
-margin_right = 131.0
-margin_bottom = 37.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Label3" type="Label" parent="TestUI"]
-margin_left = 8.0
-margin_top = 41.0
-margin_right = 136.0
-margin_bottom = 55.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="UI" parent="." instance=ExtResource( 9 )]
 
 [node name="Enemies" type="Node" parent="."]
 

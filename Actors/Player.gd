@@ -24,7 +24,7 @@ export (float, 0.0, 1, 0.1) var coyote_time = 0.2
 export (float, 0.0, 1, 0.1) var buffer_jump_time = 0.2
 
 # public variables
-var can_move := true
+var is_active := true
 
 # private variables
 var _state_machine : AnimationNodeStateMachinePlayback
@@ -72,8 +72,7 @@ func _process(_delta) -> void:
 
 
 func _physics_process(delta) -> void:
-	if can_move:
-		_move_player(delta)
+	_move_player(delta)
 	_animate_player()
 
 
@@ -83,6 +82,9 @@ func get_fruit() -> void:
 
 
 func hurt() -> void:
+	if not is_active:
+		return
+
 	_is_hurt = true
 	_hurt_timer.start()
 	yield(_hurt_timer, "timeout")
@@ -154,13 +156,13 @@ func _get_x_movement() -> float:
 		movement -= 1
 	if Input.is_action_pressed("move_right"):
 		movement += 1
-	if _is_hurt:
+	if _is_hurt or not is_active:
 		movement = 0
 	return movement
 
 
 func _get_jump() -> float:
-	if _is_hurt:
+	if _is_hurt or not is_active:
 		return 0.0
 	if is_on_floor():
 		if _check_enemy_step().size() != 0:
