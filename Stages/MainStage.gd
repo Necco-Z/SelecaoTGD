@@ -24,7 +24,7 @@ func _ready() -> void:
 
 func _physics_process(_delta) -> void:
 	# for testing
-	l_1.text = "Fruits collected: " + str(fruits)
+	l_1.text = "State machine working: " + str(player._state_machine.is_playing())
 
 
 # private methods

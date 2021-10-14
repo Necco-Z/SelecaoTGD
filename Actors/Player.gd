@@ -35,12 +35,14 @@ var _jump_velocity: float
 var _gravity: float
 var _current_friction := DEFAULT_FRICTION
 var _facing := Vector2.RIGHT.x
+var _is_hurt := false
 
 # onready variables
+onready var _sprite := $Sprite
 onready var _coyote_timer := $CoyoteTimer
 onready var _buffer_jump_timer := $BufferJumpTimer
-onready var _sprite := $Sprite
 onready var _dropdown_timer := $DropdownTimer
+onready var _hurt_timer := $HurtTimer
 onready var _hit_left := $HitLeft
 onready var _hit_right := $HitRight
 
@@ -80,6 +82,9 @@ func get_fruit() -> void:
 
 
 func hurt() -> void:
+	_is_hurt = true
+	_hurt_timer.start()
+	yield(_hurt_timer, "timeout")
 	emit_signal("player_defeated")
 
 
@@ -102,7 +107,6 @@ func _move_player(delta) -> void:
 
 func _animate_player() -> void:
 	if _anim_state == Anim.HURT:
-		print("woo!")
 		_state_machine.travel("hurt")
 	elif _anim_state == Anim.RUN:
 		_state_machine.travel("run")
@@ -147,10 +151,14 @@ func _get_x_movement() -> float:
 		movement -= 1
 	if Input.is_action_pressed("move_right"):
 		movement += 1
+	if _is_hurt:
+		movement = 0
 	return movement
 
 
 func _get_jump() -> float:
+	if _is_hurt:
+		return 0.0
 	if is_on_floor():
 		if _check_enemy_step().size() != 0:
 			if _has_jump_input():
@@ -235,9 +243,9 @@ func _set_move_state() -> void:
 
 
 func _set_anim_state() -> void:
-	# OBS: Adicionar estado HURT
-
-	if not is_on_floor():
+	if _is_hurt:
+		_anim_state = Anim.HURT
+	elif not is_on_floor():
 		_anim_state = Anim.AIR
 	elif not is_zero_approx(_velocity.x):
 		_anim_state = Anim.RUN
