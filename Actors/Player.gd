@@ -38,14 +38,14 @@ var _facing := Vector2.RIGHT.x
 var _is_hurt := false
 
 # onready variables
-onready var _sprite := $Sprite
-onready var _coyote_timer := $CoyoteTimer
-onready var _buffer_jump_timer := $BufferJumpTimer
-onready var _dropdown_timer := $DropdownTimer
-onready var _hurt_timer := $HurtTimer
-onready var _hit_left := $HitLeft
-onready var _hit_right := $HitRight
-onready var _dust := $Dust
+onready var sprite := $Sprite
+onready var coyote_timer := $CoyoteTimer
+onready var buffer_jump_timer := $BufferJumpTimer
+onready var dropdown_timer := $DropdownTimer
+onready var hurt_timer := $HurtTimer
+onready var hit_left := $HitLeft
+onready var hit_right := $HitRight
+onready var dust := $Dust
 
 
 # built-in methods (_init, _ready and others)
@@ -63,8 +63,8 @@ func _ready() -> void:
 	var jump_peak_time = jump_peak_width / walk_speed
 	_jump_velocity = (2 * jump_height) / jump_peak_time
 	_gravity = (2 * jump_height) / pow(jump_peak_time, 2)
-	_coyote_timer.wait_time = coyote_time
-	_buffer_jump_timer.wait_time = buffer_jump_time
+	coyote_timer.wait_time = coyote_time
+	buffer_jump_timer.wait_time = buffer_jump_time
 
 
 func _process(_delta) -> void:
@@ -86,8 +86,8 @@ func hurt() -> void:
 		return
 
 	_is_hurt = true
-	_hurt_timer.start()
-	yield(_hurt_timer, "timeout")
+	hurt_timer.start()
+	yield(hurt_timer, "timeout")
 	emit_signal("player_defeated")
 
 
@@ -109,12 +109,12 @@ func _move_player(delta) -> void:
 
 
 func _animate_player() -> void:
-	_dust.emitting = false
+	dust.emitting = false
 	if _anim_state == Anim.HURT:
 		_state_machine.travel("hurt")
 	elif _anim_state == Anim.RUN:
 		_state_machine.travel("run")
-		_dust.emitting = true
+		dust.emitting = true
 	elif _anim_state == Anim.AIR:
 		if _move_state == Move.JUMP:
 			_state_machine.travel("jump")
@@ -137,7 +137,7 @@ func _check_collision() -> void:
 
 func _check_enemy_step() -> Array:
 	var result := []
-	for r in [_hit_left, _hit_right]:
+	for r in [hit_left, hit_right]:
 		r.force_raycast_update()
 		if r.get_collider() != null:
 			result.append(r.get_collider())
@@ -147,7 +147,7 @@ func _check_enemy_step() -> Array:
 func _check_dropdown() -> void:
 	if Input.is_action_pressed("drop"):
 		set_collision_mask_bit(ONEWAY_BIT, false)
-		_dropdown_timer.start()
+		dropdown_timer.start()
 
 
 func _get_x_movement() -> float:
@@ -172,8 +172,7 @@ func _get_jump() -> float:
 				return 1.0
 		elif _has_jump_input():
 			return 1.0
-	elif (_coyote_timer.is_stopped() == false
-			and Input.is_action_just_pressed("jump")):
+	elif not coyote_timer.is_stopped() and _has_jump_input():
 		return 1.0
 	return 0.0
 
@@ -181,7 +180,7 @@ func _get_jump() -> float:
 func _has_jump_input() -> bool:
 	if Input.is_action_just_pressed("jump"):
 		return true
-	elif _buffer_jump_timer.is_stopped() == false:
+	elif buffer_jump_timer.is_stopped() == false:
 		return true
 	elif Input.is_action_pressed("jump") and _check_enemy_step().size() != 0:
 		return true
@@ -221,21 +220,21 @@ func _apply_friction(delta) -> float:
 func _set_facing() -> void:
 	if sign(_velocity.x) != 0 and _facing != sign(_velocity.x):
 		_facing = int(sign(_velocity.x))
-		_dust.position.x = abs(_dust.position.x) * _facing * -1
-	_sprite.flip_h = _facing == -1
+		dust.position.x = abs(dust.position.x) * _facing * -1
+	sprite.flip_h = _facing == -1
 
 
 func _set_coyote_jump() -> void:
 	if not is_on_floor() and _move_state == Move.STAND:
 		_move_state = Move.FALL
-		_coyote_timer.start()
+		coyote_timer.start()
 
 
 func _set_buffer_jump() -> void:
 	if not is_on_floor():
-		if _coyote_timer.is_stopped() and _buffer_jump_timer.is_stopped():
+		if coyote_timer.is_stopped() and buffer_jump_timer.is_stopped():
 			if Input.is_action_just_pressed("jump"):
-				_buffer_jump_timer.start()
+				buffer_jump_timer.start()
 
 
 func _set_move_state() -> void:

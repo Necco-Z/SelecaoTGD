@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=2]
+[gd_scene load_steps=22 format=2]
 
 [ext_resource path="res://Assets/Enemies/Trunk/Idle (64x32).png" type="Texture" id=1]
 [ext_resource path="res://Assets/Enemies/Trunk/Hit (64x32).png" type="Texture" id=2]
@@ -8,9 +8,6 @@
 
 [sub_resource type="CapsuleShape2D" id=1]
 height = 4.0
-
-[sub_resource type="RectangleShape2D" id=2]
-extents = Vector2( 2, 2 )
 
 [sub_resource type="Animation" id=3]
 length = 0.55
@@ -269,20 +266,16 @@ enabled = true
 cast_to = Vector2( 128, 0 )
 collision_mask = 2
 
-[node name="FloorDetect" type="Area2D" parent="."]
-position = Vector2( 16, 2 )
-collision_layer = 4
+[node name="FloorDetect" type="RayCast2D" parent="."]
+position = Vector2( 11, 0 )
+enabled = true
+cast_to = Vector2( 0, 4 )
 collision_mask = 65
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="FloorDetect"]
-shape = SubResource( 2 )
-
-[node name="WallDetect" type="Area2D" parent="."]
-position = Vector2( 16, -13 )
-collision_layer = 4
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="WallDetect"]
-shape = SubResource( 2 )
+[node name="WallDetect" type="RayCast2D" parent="."]
+position = Vector2( 10, -6 )
+enabled = true
+cast_to = Vector2( 4, 0 )
 
 [node name="AlertTimer" type="Timer" parent="."]
 one_shot = true
@@ -292,10 +285,6 @@ one_shot = true
 
 [node name="PatrolTimer" type="Timer" parent="."]
 one_shot = true
-
-[node name="RunCheckTimer" type="Timer" parent="."]
-wait_time = 0.1
-autostart = true
 
 [node name="Animation" type="AnimationPlayer" parent="."]
 anims/attack = SubResource( 3 )
@@ -310,4 +299,3 @@ parameters/playback = SubResource( 17 )
 
 [connection signal="timeout" from="AlertTimer" to="." method="_on_AlertTimer_timeout"]
 [connection signal="timeout" from="PatrolTimer" to="." method="_on_PatrolTimer_timeout"]
-[connection signal="timeout" from="RunCheckTimer" to="." method="_on_RunCheckTimer_timeout"]

@@ -1,14 +1,5 @@
 # tool, class_name and extends keywords
 extends Node
-# description (docstring)
-
-# signals
-
-# enums
-
-# constants
-
-# exported variables
 
 # public variables
 var current_scene : Node
@@ -19,6 +10,9 @@ onready var fader := $Fader
 
 
 # built-in methods (_init, _ready and others)
+func _process(_delta: float) -> void:
+	if Input.is_action_just_pressed("ui_cancel"):
+		get_tree().quit()
 
 
 # public methods

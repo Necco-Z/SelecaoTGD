@@ -1,10 +1,11 @@
-[gd_scene load_steps=30 format=2]
+[gd_scene load_steps=31 format=2]
 
 [ext_resource path="res://Assets/Main Characters/Ninja Frog/Hit (32x32).png" type="Texture" id=1]
 [ext_resource path="res://Assets/Main Characters/Ninja Frog/Idle (32x32).png" type="Texture" id=2]
 [ext_resource path="res://Assets/Main Characters/Ninja Frog/Fall (32x32).png" type="Texture" id=3]
 [ext_resource path="res://Assets/Main Characters/Ninja Frog/Jump (32x32).png" type="Texture" id=4]
 [ext_resource path="res://Assets/Main Characters/Ninja Frog/Run (32x32).png" type="Texture" id=5]
+[ext_resource path="res://Assets/Other/Dust Particle.png" type="Texture" id=6]
 [ext_resource path="res://Actors/Player.gd" type="Script" id=7]
 
 [sub_resource type="RectangleShape2D" id=1]
@@ -14,26 +15,26 @@ extents = Vector2( 7, 2 )
 radius = 8.0
 height = 4.0
 
-[sub_resource type="Gradient" id=30]
+[sub_resource type="Gradient" id=3]
 colors = PoolColorArray( 0.882353, 0.964706, 0.729412, 1, 0.588235, 0.6, 0.470588, 0.623529 )
 
-[sub_resource type="GradientTexture" id=31]
-gradient = SubResource( 30 )
+[sub_resource type="GradientTexture" id=24]
+gradient = SubResource( 3 )
 width = 32
 
-[sub_resource type="ParticlesMaterial" id=29]
-trail_divisor = 3
-trail_color_modifier = SubResource( 31 )
+[sub_resource type="ParticlesMaterial" id=5]
 emission_shape = 2
 emission_box_extents = Vector3( 2, 1, 1 )
 flag_disable_z = true
+direction = Vector3( 0, -1, 0 )
+initial_velocity = 1.0
 orbit_velocity = 0.0
 orbit_velocity_random = 0.0
-scale = 2.0
-scale_random = 0.5
-color = Color( 0.898039, 1, 0.819608, 1 )
+scale = 0.2
+scale_random = 0.2
+color_ramp = SubResource( 24 )
 
-[sub_resource type="Animation" id=5]
+[sub_resource type="Animation" id=6]
 length = 0.05
 step = 0.05
 tracks/0/type = "value"
@@ -73,8 +74,7 @@ tracks/2/keys = {
 "values": [ 0 ]
 }
 
-[sub_resource type="Animation" id=6]
-resource_name = "hurt"
+[sub_resource type="Animation" id=7]
 length = 0.35
 step = 0.05
 tracks/0/type = "value"
@@ -114,7 +114,7 @@ tracks/2/keys = {
 "values": [ 0, 6 ]
 }
 
-[sub_resource type="Animation" id=7]
+[sub_resource type="Animation" id=8]
 length = 0.55
 loop = true
 step = 0.05
@@ -155,7 +155,7 @@ tracks/2/keys = {
 "values": [ 0, 10 ]
 }
 
-[sub_resource type="Animation" id=8]
+[sub_resource type="Animation" id=9]
 length = 0.05
 step = 0.05
 tracks/0/type = "value"
@@ -195,7 +195,7 @@ tracks/2/keys = {
 "values": [ 0 ]
 }
 
-[sub_resource type="Animation" id=9]
+[sub_resource type="Animation" id=10]
 length = 0.6
 loop = true
 step = 0.05
@@ -239,7 +239,7 @@ tracks/2/keys = {
 [sub_resource type="AnimationNodeAnimation" id=11]
 animation = "fall"
 
-[sub_resource type="AnimationNodeAnimation" id=27]
+[sub_resource type="AnimationNodeAnimation" id=12]
 animation = "hurt"
 
 [sub_resource type="AnimationNodeAnimation" id=13]
@@ -253,20 +253,20 @@ animation = "run"
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=16]
 
+[sub_resource type="AnimationNodeStateMachineTransition" id=17]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id=18]
+
 [sub_resource type="AnimationNodeStateMachineTransition" id=19]
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=20]
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=21]
 
-[sub_resource type="AnimationNodeStateMachineTransition" id=24]
-
-[sub_resource type="AnimationNodeStateMachineTransition" id=28]
-
-[sub_resource type="AnimationNodeStateMachine" id=25]
+[sub_resource type="AnimationNodeStateMachine" id=22]
 states/fall/node = SubResource( 11 )
 states/fall/position = Vector2( 897, 25 )
-states/hurt/node = SubResource( 27 )
+states/hurt/node = SubResource( 12 )
 states/hurt/position = Vector2( 399, 136 )
 states/idle/node = SubResource( 13 )
 states/idle/position = Vector2( 629, 136 )
@@ -274,12 +274,12 @@ states/jump/node = SubResource( 14 )
 states/jump/position = Vector2( 629, -15 )
 states/run/node = SubResource( 15 )
 states/run/position = Vector2( 629, 270 )
-transitions = [ "idle", "jump", SubResource( 16 ), "fall", "idle", SubResource( 19 ), "idle", "run", SubResource( 20 ), "run", "idle", SubResource( 21 ), "jump", "fall", SubResource( 24 ), "idle", "hurt", SubResource( 28 ) ]
+transitions = [ "idle", "jump", SubResource( 16 ), "fall", "idle", SubResource( 17 ), "idle", "run", SubResource( 18 ), "run", "idle", SubResource( 19 ), "jump", "fall", SubResource( 20 ), "idle", "hurt", SubResource( 21 ) ]
 start_node = "idle"
 end_node = "hurt"
 graph_offset = Vector2( -37, 22.8953 )
 
-[sub_resource type="AnimationNodeStateMachinePlayback" id=26]
+[sub_resource type="AnimationNodeStateMachinePlayback" id=23]
 
 [node name="Player" type="KinematicBody2D" groups=[
 "player",
@@ -315,25 +315,28 @@ texture = ExtResource( 2 )
 hframes = 11
 
 [node name="Dust" type="Particles2D" parent="."]
-position = Vector2( -7, -2 )
-amount = 3
+position = Vector2( -8, -1 )
+emitting = false
+amount = 2
 lifetime = 0.25
+explosiveness = 0.4
 randomness = 0.3
 local_coords = false
 draw_order = 1
-process_material = SubResource( 29 )
+process_material = SubResource( 5 )
+texture = ExtResource( 6 )
 
 [node name="Animation" type="AnimationPlayer" parent="."]
-anims/fall = SubResource( 5 )
-anims/hurt = SubResource( 6 )
-anims/idle = SubResource( 7 )
-anims/jump = SubResource( 8 )
-anims/run = SubResource( 9 )
+anims/fall = SubResource( 6 )
+anims/hurt = SubResource( 7 )
+anims/idle = SubResource( 8 )
+anims/jump = SubResource( 9 )
+anims/run = SubResource( 10 )
 
 [node name="Tree" type="AnimationTree" parent="Animation"]
-tree_root = SubResource( 25 )
+tree_root = SubResource( 22 )
 anim_player = NodePath("..")
-parameters/playback = SubResource( 26 )
+parameters/playback = SubResource( 23 )
 
 [node name="CoyoteTimer" type="Timer" parent="."]
 wait_time = 0.2

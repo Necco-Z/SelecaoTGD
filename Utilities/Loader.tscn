@@ -4,4 +4,4 @@
 
 [node name="Loader" type="Node"]
 script = ExtResource( 1 )
-starter_scene = "res://Stages/MainStage.tscn"
+starter_scene = "res://Utilities/SplashScreen.tscn"

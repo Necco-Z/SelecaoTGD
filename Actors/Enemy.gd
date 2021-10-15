@@ -1,8 +1,5 @@
 # tool, class_name and extends keywords
 extends KinematicBody2D
-# description (docstring)
-
-# signals
 
 # enums
 enum States {PATROL, ALERT, HURT}
@@ -14,6 +11,7 @@ const SPEED = 40.0
 # exported variables
 export (String, "Right", "Left") var start_facing = "Right"
 export (NodePath) var game_space_node
+export (bool) var moving_enemies = true
 
 # public variables
 var is_active := true
@@ -22,31 +20,32 @@ var is_active := true
 var _state_machine : AnimationNodeStateMachinePlayback
 var _state = States.PATROL
 var _direction := Vector2.RIGHT
-var _can_run := true
 var _game_space : Node
 
 # onready variables
 onready var shoot_pos := $ShootPos
 onready var floor_detect := $FloorDetect
 onready var wall_detect := $WallDetect
-onready var run_check_timer := $RunCheckTimer
+onready var player_detect := $PlayerDetect
 onready var alert_timer := $AlertTimer
 onready var shoot_timer := $ShootTimer
 onready var patrol_timer := $PatrolTimer
 onready var sprite := $Sprite
-onready var player_detect := $PlayerDetect
 
 
 # built-in methods (_init, _ready and others)
 func _ready() -> void:
+	# Inicialização da state machine de animação
 	_state_machine = $Animation/Tree.get("parameters/playback")
 	$Animation/Tree.active = true
 
+	# Node onde vão ficar as sementes atiradas
 	if game_space_node == "":
 		_game_space = get_parent()
 	else:
 		_game_space = get_node(game_space_node)
 
+	# Virar o inimigo pra iniciar na posição escolhida
 	if start_facing == "Left":
 		_flip_dir()
 
@@ -54,6 +53,7 @@ func _ready() -> void:
 func _physics_process(_delta: float) -> void:
 	_execute_state()
 	_animate()
+
 
 # public methods
 func hurt() -> void:
@@ -68,10 +68,11 @@ func _execute_state() -> void:
 			if player_detect.is_colliding():
 				patrol_timer.stop()
 				_state = States.ALERT
-			elif _can_run:
-				_run()
-			elif patrol_timer.is_stopped():
-				patrol_timer.start()
+			elif moving_enemies:
+				if _can_run():
+					_run()
+				elif patrol_timer.is_stopped():
+					patrol_timer.start()
 		States.ALERT:
 			if not player_detect.is_colliding():
 				if alert_timer.is_stopped():
@@ -85,7 +86,7 @@ func _execute_state() -> void:
 func _animate() -> void:
 	match _state:
 		States.PATROL:
-			if patrol_timer.is_stopped():
+			if patrol_timer.is_stopped() and moving_enemies:
 				_state_machine.travel("run")
 			else:
 				_state_machine.travel("idle")
@@ -96,7 +97,6 @@ func _animate() -> void:
 				_state_machine.travel("idle")
 		States.HURT:
 			_state_machine.travel("hurt")
-
 
 
 func _shoot() -> void:
@@ -118,32 +118,26 @@ func _flip_dir() -> void:
 	player_detect.cast_to.x *= -1
 	floor_detect.position.x *= -1
 	wall_detect.position.x *= -1
+	wall_detect.cast_to.x *= -1
 	if _direction == Vector2.LEFT:
 		sprite.flip_h = true
 	else:
 		sprite.flip_h = false
-	_can_run = true
-	run_check_timer.start()
 
 
-func _check_run() -> void:
-	var value = true
-	if floor_detect.get_overlapping_bodies().size() == 0:
-		value = false
-	if wall_detect.get_overlapping_bodies().size() != 0:
-		value = false
-	_can_run = value
+func _can_run() -> bool:
+	if not floor_detect.is_colliding():
+		return false
+	elif wall_detect.is_colliding():
+		return false
+	else:
+		return true
 
 
 # signal methods
 func _on_PatrolTimer_timeout() -> void:
 	if _state == States.PATROL:
 		_flip_dir()
-
-
-func _on_RunCheckTimer_timeout() -> void:
-	if is_active:
-		_check_run()
 
 
 func _on_AlertTimer_timeout() -> void:

@@ -3,7 +3,7 @@ extends Node
 
 # public variables
 var fruits := 0
-var max_fruits := 1
+var max_fruits := 0
 
 # onready variables
 onready var player := $Player
