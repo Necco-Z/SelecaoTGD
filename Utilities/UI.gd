@@ -1,6 +1,7 @@
 # tool, class_name and extends keywords
 extends CanvasLayer
 
+# signals
 signal anim_finished
 
 # onready variables
