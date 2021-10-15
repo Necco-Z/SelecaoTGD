@@ -9,7 +9,7 @@
 [sub_resource type="CapsuleShape2D" id=1]
 height = 4.0
 
-[sub_resource type="Animation" id=3]
+[sub_resource type="Animation" id=2]
 length = 0.55
 step = 0.05
 tracks/0/type = "value"
@@ -63,7 +63,7 @@ tracks/3/keys = {
 } ]
 }
 
-[sub_resource type="Animation" id=4]
+[sub_resource type="Animation" id=3]
 resource_name = "hurt"
 length = 0.25
 step = 0.05
@@ -118,7 +118,7 @@ tracks/3/keys = {
 } ]
 }
 
-[sub_resource type="Animation" id=5]
+[sub_resource type="Animation" id=4]
 length = 0.95
 loop = true
 step = 0.05
@@ -159,7 +159,7 @@ tracks/2/keys = {
 "values": [ 0, 17 ]
 }
 
-[sub_resource type="Animation" id=6]
+[sub_resource type="Animation" id=5]
 length = 0.75
 loop = true
 tracks/0/type = "value"
@@ -199,45 +199,45 @@ tracks/2/keys = {
 "values": [ 0, 13 ]
 }
 
-[sub_resource type="AnimationNodeAnimation" id=7]
+[sub_resource type="AnimationNodeAnimation" id=6]
 animation = "attack"
 
-[sub_resource type="AnimationNodeAnimation" id=8]
+[sub_resource type="AnimationNodeAnimation" id=7]
 animation = "hurt"
 
-[sub_resource type="AnimationNodeAnimation" id=9]
+[sub_resource type="AnimationNodeAnimation" id=8]
 animation = "idle"
 
-[sub_resource type="AnimationNodeAnimation" id=10]
+[sub_resource type="AnimationNodeAnimation" id=9]
 animation = "run"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id=10]
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=11]
 
 [sub_resource type="AnimationNodeStateMachineTransition" id=12]
-
-[sub_resource type="AnimationNodeStateMachineTransition" id=13]
 switch_mode = 2
 auto_advance = true
 
+[sub_resource type="AnimationNodeStateMachineTransition" id=13]
+
 [sub_resource type="AnimationNodeStateMachineTransition" id=14]
 
-[sub_resource type="AnimationNodeStateMachineTransition" id=15]
-
-[sub_resource type="AnimationNodeStateMachine" id=16]
-states/attack/node = SubResource( 7 )
+[sub_resource type="AnimationNodeStateMachine" id=15]
+states/attack/node = SubResource( 6 )
 states/attack/position = Vector2( 596, 88 )
-states/hurt/node = SubResource( 8 )
+states/hurt/node = SubResource( 7 )
 states/hurt/position = Vector2( 417, 204 )
-states/idle/node = SubResource( 9 )
+states/idle/node = SubResource( 8 )
 states/idle/position = Vector2( 596, 204 )
-states/run/node = SubResource( 10 )
+states/run/node = SubResource( 9 )
 states/run/position = Vector2( 776, 204 )
-transitions = [ "idle", "attack", SubResource( 11 ), "idle", "run", SubResource( 12 ), "attack", "idle", SubResource( 13 ), "run", "idle", SubResource( 14 ), "idle", "hurt", SubResource( 15 ) ]
+transitions = [ "idle", "attack", SubResource( 10 ), "idle", "run", SubResource( 11 ), "attack", "idle", SubResource( 12 ), "run", "idle", SubResource( 13 ), "idle", "hurt", SubResource( 14 ) ]
 start_node = "idle"
 end_node = "hurt"
 graph_offset = Vector2( -27, 49 )
 
-[sub_resource type="AnimationNodeStateMachinePlayback" id=17]
+[sub_resource type="AnimationNodeStateMachinePlayback" id=16]
 
 [node name="Enemy" type="KinematicBody2D" groups=[
 "enemy",
@@ -246,6 +246,7 @@ z_index = 5
 collision_layer = 4
 collision_mask = 75
 script = ExtResource( 5 )
+moving_enemies = false
 
 [node name="Body" type="CollisionShape2D" parent="."]
 position = Vector2( 0, -12 )
@@ -287,15 +288,15 @@ one_shot = true
 one_shot = true
 
 [node name="Animation" type="AnimationPlayer" parent="."]
-anims/attack = SubResource( 3 )
-anims/hurt = SubResource( 4 )
-anims/idle = SubResource( 5 )
-anims/run = SubResource( 6 )
+anims/attack = SubResource( 2 )
+anims/hurt = SubResource( 3 )
+anims/idle = SubResource( 4 )
+anims/run = SubResource( 5 )
 
 [node name="Tree" type="AnimationTree" parent="Animation"]
-tree_root = SubResource( 16 )
+tree_root = SubResource( 15 )
 anim_player = NodePath("..")
-parameters/playback = SubResource( 17 )
+parameters/playback = SubResource( 16 )
 
 [connection signal="timeout" from="AlertTimer" to="." method="_on_AlertTimer_timeout"]
 [connection signal="timeout" from="PatrolTimer" to="." method="_on_PatrolTimer_timeout"]
