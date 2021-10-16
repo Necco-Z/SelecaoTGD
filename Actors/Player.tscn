@@ -18,7 +18,7 @@ height = 4.0
 [sub_resource type="Gradient" id=3]
 colors = PoolColorArray( 0.882353, 0.964706, 0.729412, 1, 0.588235, 0.6, 0.470588, 0.623529 )
 
-[sub_resource type="GradientTexture" id=24]
+[sub_resource type="GradientTexture" id=4]
 gradient = SubResource( 3 )
 width = 32
 
@@ -32,7 +32,7 @@ orbit_velocity = 0.0
 orbit_velocity_random = 0.0
 scale = 0.2
 scale_random = 0.2
-color_ramp = SubResource( 24 )
+color_ramp = SubResource( 4 )
 
 [sub_resource type="Animation" id=6]
 length = 0.05
@@ -339,11 +339,11 @@ anim_player = NodePath("..")
 parameters/playback = SubResource( 23 )
 
 [node name="CoyoteTimer" type="Timer" parent="."]
-wait_time = 0.2
+wait_time = 0.1
 one_shot = true
 
 [node name="BufferJumpTimer" type="Timer" parent="."]
-wait_time = 0.1
+wait_time = 0.2
 one_shot = true
 
 [node name="DropdownTimer" type="Timer" parent="."]

@@ -41,7 +41,7 @@ target_node = NodePath("../Player")
 
 [node name="Player" parent="." instance=ExtResource( 3 )]
 position = Vector2( 47, 256 )
-jump_height = 5.0
+jump_height = 4.0
 jump_width = 4.5
 walk_speed = 5.0
 

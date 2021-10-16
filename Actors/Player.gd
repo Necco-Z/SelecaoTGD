@@ -20,8 +20,6 @@ const ONEWAY_BIT := 6
 export (float, 0.5, 10.0, 0.5) var jump_height = 1
 export (float, 0.5, 20, 0.5) var jump_width = 1
 export (float, 0.5, 20, 0.5) var walk_speed = 1
-export (float, 0.0, 1, 0.1) var coyote_time = 0.2
-export (float, 0.0, 1, 0.1) var buffer_jump_time = 0.2
 
 # public variables
 var is_active := true
@@ -55,20 +53,14 @@ func _ready() -> void:
 	$Animation/Tree.active = true
 
 	# Definição de valores para física do personagem
-	# o quarto a mais garante que o pulo é bem-sucedido
-	jump_height = _unit_to_px(jump_height) + (float(TILE_SIZE) / 4)
+	# o 0.1 a mais garante que o pulo é bem-sucedido
+	jump_height = _unit_to_px(jump_height) + (float(TILE_SIZE) * 0.1)
 	jump_width = _unit_to_px(jump_width)
 	walk_speed = _unit_to_px(walk_speed)
 	var jump_peak_width = jump_width / 2
 	var jump_peak_time = jump_peak_width / walk_speed
 	_jump_velocity = (2 * jump_height) / jump_peak_time
 	_gravity = (2 * jump_height) / pow(jump_peak_time, 2)
-	coyote_timer.wait_time = coyote_time
-	buffer_jump_timer.wait_time = buffer_jump_time
-
-
-func _process(_delta) -> void:
-	pass
 
 
 func _physics_process(delta) -> void:
@@ -96,16 +88,17 @@ func _move_player(delta) -> void:
 	_check_dropdown()
 	_velocity.x += _get_x_movement() * walk_speed
 	_velocity.x = _apply_friction(delta)
+	_velocity.y = _adjust_y_velocity()
 	_velocity.y -= _get_jump() * _jump_velocity
 	_velocity.y += _get_gravity() * delta
 	_velocity = _limit_velocity()
 	_velocity = move_and_slide(_velocity, Vector2.UP)
 	_check_collision()
 	_set_facing()
-	_set_move_state()
-	_set_anim_state()
 	_set_coyote_jump()
 	_set_buffer_jump()
+	_set_move_state()
+	_set_anim_state()
 
 
 func _animate_player() -> void:
@@ -122,26 +115,6 @@ func _animate_player() -> void:
 			_state_machine.travel("fall")
 	else:
 		_state_machine.travel("idle")
-
-
-func _check_collision() -> void:
-	var c_enemy := _check_enemy_step()
-	for i in get_slide_count():
-		var col = get_slide_collision(i)
-		if col.collider.is_in_group("enemy"):
-			if c_enemy.has(col.collider):
-				col.collider.hurt()
-			else:
-				hurt()
-
-
-func _check_enemy_step() -> Array:
-	var result := []
-	for r in [hit_left, hit_right]:
-		r.force_raycast_update()
-		if r.get_collider() != null:
-			result.append(r.get_collider())
-	return result
 
 
 func _check_dropdown() -> void:
@@ -161,8 +134,28 @@ func _get_x_movement() -> float:
 	return movement
 
 
+func _apply_friction(delta) -> float:
+	var xlen = abs(_velocity.x)
+	var xsign = sign(_velocity.x)
+	var applied_friction: float
+	if is_on_floor():
+		applied_friction = _current_friction
+	else:
+		applied_friction = _current_friction / 2
+	if _get_x_movement() == 0:
+		xlen = max(0, xlen - walk_speed * applied_friction * delta)
+	return xlen * xsign
+
+
+func _adjust_y_velocity() -> float:
+	if not coyote_timer.is_stopped() and _has_jump_input():
+		return 0.0
+	else:
+		return _velocity.y
+
+
 func _get_jump() -> float:
-	if _is_hurt or not is_active:
+	if _is_hurt:
 		return 0.0
 	if is_on_floor():
 		if _check_enemy_step().size() != 0:
@@ -177,19 +170,12 @@ func _get_jump() -> float:
 	return 0.0
 
 
-func _has_jump_input() -> bool:
-	if Input.is_action_just_pressed("jump"):
-		return true
-	elif buffer_jump_timer.is_stopped() == false:
-		return true
-	elif Input.is_action_pressed("jump") and _check_enemy_step().size() != 0:
-		return true
-	else:
-		return false
-
-
 func _get_gravity() -> float:
-	if _move_state == Move.FALL or not Input.is_action_pressed("jump"):
+	if not coyote_timer.is_stopped() and _has_jump_input():
+		return _gravity
+	elif _move_state == Move.FALL:
+		return _gravity * FALL_MODIFIER
+	elif not is_on_floor() and not _has_jump_input():
 		return _gravity * FALL_MODIFIER
 	else:
 		return _gravity
@@ -199,22 +185,20 @@ func _limit_velocity() -> Vector2:
 	var new_vel = _velocity
 	if abs(new_vel.x) > walk_speed:
 		new_vel.x = sign(new_vel.x) * walk_speed
-	if new_vel.y > _jump_velocity:
-		new_vel.y = _jump_velocity
+	if abs(new_vel.y) > _jump_velocity:
+		new_vel.y = sign(new_vel.y) * _jump_velocity
 	return new_vel
 
 
-func _apply_friction(delta) -> float:
-	var xlen = abs(_velocity.x)
-	var xsign = sign(_velocity.x)
-	var applied_friction: float
-	if is_on_floor():
-		applied_friction = _current_friction
-	else:
-		applied_friction = _current_friction / 2
-	if _get_x_movement() == 0:
-		xlen = max(0, xlen - walk_speed * applied_friction * delta)
-	return xlen * xsign
+func _check_collision() -> void:
+	var c_enemy := _check_enemy_step()
+	for i in get_slide_count():
+		var col = get_slide_collision(i)
+		if col.collider.is_in_group("enemy"):
+			if c_enemy.has(col.collider):
+				col.collider.hurt()
+			else:
+				hurt()
 
 
 func _set_facing() -> void:
@@ -226,15 +210,15 @@ func _set_facing() -> void:
 
 func _set_coyote_jump() -> void:
 	if not is_on_floor() and _move_state == Move.STAND:
-		_move_state = Move.FALL
 		coyote_timer.start()
+	elif is_on_floor() and not coyote_timer.is_stopped():
+		coyote_timer.stop()
 
 
 func _set_buffer_jump() -> void:
-	if not is_on_floor():
+	if not is_on_floor() and Input.is_action_just_pressed("jump"):
 		if coyote_timer.is_stopped() and buffer_jump_timer.is_stopped():
-			if Input.is_action_just_pressed("jump"):
-				buffer_jump_timer.start()
+			buffer_jump_timer.start()
 
 
 func _set_move_state() -> void:
@@ -258,10 +242,34 @@ func _set_anim_state() -> void:
 		_anim_state = Anim.IDLE
 
 
+func _check_enemy_step() -> Array:
+	var result := []
+	for r in [hit_left, hit_right]:
+		r.force_raycast_update()
+		if r.get_collider() != null:
+			result.append(r.get_collider())
+	return result
+
+
+func _has_jump_input() -> bool:
+	if not is_active:
+		return false
+	elif is_on_floor() and Input.is_action_just_pressed("jump"):
+		return true
+	elif not is_on_floor() and Input.is_action_pressed("jump"):
+		return true
+	elif not buffer_jump_timer.is_stopped() and is_on_floor():
+		buffer_jump_timer.stop()
+		return true
+	else:
+		return false
+
+
 # helper methods
 func _unit_to_px(value) -> float:
 	return value * TILE_SIZE
 
 
+# signal methods
 func _on_DropdownTimer_timeout() -> void:
 	set_collision_mask_bit(ONEWAY_BIT, true)
